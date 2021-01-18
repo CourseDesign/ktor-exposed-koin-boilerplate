@@ -19,8 +19,8 @@ class RepositoryTest {
     @Test
     fun testSave() {
         withTables(Users, Cities) {
-            val userRepository = UserRepository(this.db)
-            val cityRepository = CityRepository(this.db)
+            val userRepository = UserRepository(this)
+            val cityRepository = CityRepository(this)
 
             val city = cityRepository.save(City("Test"))
             assertNotNull(city.id)
@@ -34,8 +34,8 @@ class RepositoryTest {
     @Test
     fun testFind() {
         withTables(Users, Cities) {
-            val userRepository = UserRepository(this.db)
-            val cityRepository = CityRepository(this.db)
+            val userRepository = UserRepository(this)
+            val cityRepository = CityRepository(this)
 
             val city = cityRepository.save(City("Test"))
             val user = userRepository.save(User("Test", city.id))
@@ -52,8 +52,8 @@ class RepositoryTest {
     @Test
     fun testExits() {
         withTables(Users, Cities) {
-            val userRepository = UserRepository(this.db)
-            val cityRepository = CityRepository(this.db)
+            val userRepository = UserRepository(this)
+            val cityRepository = CityRepository(this)
 
             val city = cityRepository.save(City("Test"))
             val user = userRepository.save(User("Test", city.id))
@@ -69,7 +69,7 @@ class RepositoryTest {
     @Test
     fun testUpdate() {
         withTables(Users, Cities) {
-            val cityRepository = CityRepository(this.db)
+            val cityRepository = CityRepository(this)
 
             val city = cityRepository.save(City("Test"))
             val newCity: City = cityRepository.updateById(
@@ -86,7 +86,7 @@ class RepositoryTest {
     @Test
     fun testDelete() {
         withTables(Users, Cities) {
-            val cityRepository = CityRepository(this.db)
+            val cityRepository = CityRepository(this)
 
             val city = cityRepository.save(City("Test"))
             cityRepository.deleteById(city.id!!)
@@ -97,7 +97,7 @@ class RepositoryTest {
     @Test
     fun testCount() {
         withTables(Users, Cities) {
-            val cityRepository = CityRepository(this.db)
+            val cityRepository = CityRepository(this)
 
             assertEquals(cityRepository.countAll(), 0)
             cityRepository.save(City("Test"))
@@ -108,7 +108,7 @@ class RepositoryTest {
     @Test
     fun testRollback() {
         withTables(Users, Cities) {
-            val cityRepository = CityRepository(this.db)
+            val cityRepository = CityRepository(this)
             cityRepository.transaction {
                 cityRepository.save(City("Test"))
                 rollback()

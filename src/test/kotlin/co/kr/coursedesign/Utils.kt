@@ -5,13 +5,12 @@ import co.kr.coursedesign.database.connect
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
-inline fun <T> withTables(vararg tables: Table, crossinline statement: Transaction.() -> T): T = withDatabase {
+inline fun <T> withTables(vararg tables: Table, crossinline statement: Database.() -> T): T = withDatabase {
     transaction(this) { SchemaUtils.create(*tables) }
-    val result = transaction(this) { statement(this) }
+    val result = statement(this)
     transaction(this) { SchemaUtils.drop(*tables) }
     result
 }

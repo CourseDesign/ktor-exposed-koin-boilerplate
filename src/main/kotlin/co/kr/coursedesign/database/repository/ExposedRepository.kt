@@ -17,6 +17,7 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import java.util.Optional
 import kotlin.reflect.KClass
 
 open class ExposedRepository<ID : Comparable<ID>, TABLE : IdTable<ID>>(
@@ -52,14 +53,19 @@ open class ExposedRepository<ID : Comparable<ID>, TABLE : IdTable<ID>>(
 
     fun <T : Any> find(where: SqlExpressionBuilder.() -> Op<Boolean>, kClass: KClass<T>): T? {
         val converter = fetchConverter(kClass)
+        val value = transaction {
+            Optional.ofNullable(
+                findFieldSet(converter)
+                    .select(where)
+                    .limit(1)
+                    .firstOrNull()
+            )
+        }.map { converter.deserialize(it) }
 
-        return transaction {
-            findFieldSet(converter)
-                .select(where)
-                .limit(1)
+        return when (value.isPresent) {
+            true -> value.get()
+            false -> null
         }
-            .firstOrNull()
-            ?.let { converter.deserialize(it) }
     }
 
     fun <T : Any> findAll(where: SqlExpressionBuilder.() -> Op<Boolean>, kClass: KClass<T>): Iterable<T> = transaction {
@@ -108,9 +114,10 @@ open class ExposedRepository<ID : Comparable<ID>, TABLE : IdTable<ID>>(
         find(where, kClass) ?: throw CantFindException()
     }
 
-    override fun <T : Any> transaction(statement: (co.kr.coursedesign.database.transaction.Transaction) -> T): T = transaction(database) {
-        statement(ExposedTransactionAdapter(this))
-    }
+    override fun <T : Any> transaction(statement: co.kr.coursedesign.database.transaction.Transaction.() -> T): T =
+        transaction(database) {
+            statement(ExposedTransactionAdapter(this))
+        }
 }
 
 inline fun <ID : Comparable<ID>, TABLE : IdTable<ID>, reified T : Any> ExposedRepository<ID, TABLE>.find(noinline where: SqlExpressionBuilder.() -> Op<Boolean>) = find(where, T::class)
