@@ -10,10 +10,9 @@ abstract class Patcher<ENTITY : Any, TABLE : Table> : Converter<ENTITY, TABLE> {
         get() = null
 
     final override fun serialize(userObject: ENTITY): TABLE.(UpdateBuilder<*>) -> Unit = patch(userObject)
-
-    abstract fun patch(userObject: ENTITY): TABLE.(UpdateBuilder<*>) -> Unit
-
     final override fun deserialize(databaseObject: ResultRow): ENTITY {
         TODO("Not yet implemented")
     }
+
+    abstract fun patch(userObject: ENTITY): TABLE.(UpdateBuilder<*>) -> Unit
 }
