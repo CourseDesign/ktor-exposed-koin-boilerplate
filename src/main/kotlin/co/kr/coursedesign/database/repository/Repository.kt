@@ -18,6 +18,8 @@ interface Repository<ID : Comparable<ID>> {
     fun deleteById(id: ID): Int
     fun deleteAll(id: ID): Int
 
+    fun countAll(): Long
+
     fun <T : Any> transaction(statement: Transaction.() -> T): T
 }
 

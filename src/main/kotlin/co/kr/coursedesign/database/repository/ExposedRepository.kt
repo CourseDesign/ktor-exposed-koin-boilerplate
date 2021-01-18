@@ -83,6 +83,11 @@ open class ExposedRepository<ID : Comparable<ID>, TABLE : IdTable<ID>>(
             .count()
     }
 
+    override fun countAll(): Long = transaction {
+        table.selectAll()
+            .count()
+    }
+
     override fun deleteById(id: ID): Int = delete { table.id eq id }
 
     override fun deleteAll(id: ID): Int = transaction {

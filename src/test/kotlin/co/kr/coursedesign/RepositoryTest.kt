@@ -93,4 +93,27 @@ class RepositoryTest {
             assert(!cityRepository.existsById(city.id!!))
         }
     }
+
+    @Test
+    fun testCount() {
+        withTables(Users, Cities) {
+            val cityRepository = CityRepository(this.db)
+
+            assertEquals(cityRepository.countAll(), 0)
+            cityRepository.save(City("Test"))
+            assertEquals(cityRepository.countAll(), 1)
+        }
+    }
+
+    @Test
+    fun testRollback() {
+        withTables(Users, Cities) {
+            val cityRepository = CityRepository(this.db)
+            cityRepository.transaction {
+                cityRepository.save(City("Test"))
+                rollback()
+            }
+            assertEquals(cityRepository.countAll(), 0)
+        }
+    }
 }
