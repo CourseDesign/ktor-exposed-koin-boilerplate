@@ -1,4 +1,4 @@
-package co.kr.coursedesign.database
+package co.kr.coursedesign.database.transaction
 
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Transaction

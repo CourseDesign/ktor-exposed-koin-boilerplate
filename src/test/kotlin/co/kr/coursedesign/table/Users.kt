@@ -1,11 +1,8 @@
 package co.kr.coursedesign.table
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.dao.id.IntIdTable
 
-object Users : Table() {
-    val id = varchar("id", 10)
+object Users : IntIdTable() {
     val name = varchar("name", length = 50)
-    val cityId = (integer("city_id") references Cities.id).nullable()
-
-    override val primaryKey = PrimaryKey(id, name = "PK_User_ID")
+    val cityId = (integer("city_id").references(Cities.id)).nullable()
 }
