@@ -7,5 +7,5 @@ enum class Propagation {
     NOT_SUPPORTED, // TODO(지원)
     REQUIRED,
     REQUIRES_NEW,
-    SUPPORTS,
+    SUPPORTS, // TODO(지원)
 }

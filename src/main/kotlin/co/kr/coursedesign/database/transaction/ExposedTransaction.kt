@@ -102,12 +102,7 @@ internal fun <T> requireTransaction(
     val outer = TransactionManager.currentOrNull()
 
     if (outer != null && (db == null || outer.db == db)) {
-        val outerManager = outer.db.transactionManager
-        try {
-            outer.statement()
-        } finally {
-            TransactionManager.resetCurrent(outerManager)
-        }
+        outer.statement()
     } else {
         val existingForDb = db?.transactionManager
         existingForDb?.currentOrNull()?.let { transaction ->

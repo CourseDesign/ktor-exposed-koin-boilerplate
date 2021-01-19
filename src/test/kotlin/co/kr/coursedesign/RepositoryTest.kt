@@ -109,10 +109,14 @@ class RepositoryTest {
     fun testRollback() {
         withTables(Users, Cities) {
             val cityRepository = CityRepository(this)
-            cityRepository.transaction {
-                cityRepository.save(City("Test"))
-                rollback()
+            try {
+                cityRepository.transaction {
+                    cityRepository.save(City("Test"))
+                    throw RuntimeException("test")
+                }
+            } catch (ignored: Exception) {
             }
+
             assertEquals(cityRepository.countAll(), 0)
         }
     }
