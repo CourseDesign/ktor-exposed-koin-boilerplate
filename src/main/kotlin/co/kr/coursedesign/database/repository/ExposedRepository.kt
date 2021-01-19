@@ -48,9 +48,8 @@ open class ExposedRepository<ID : Comparable<ID>, TABLE : IdTable<ID>>(
             .map { converter.deserialize(it) }
     }
 
-    override fun <T : Any> findAllById(ids: Iterable<ID>, kClass: KClass<T>): Iterable<T> = transaction {
+    override fun <T : Any> findAllById(ids: Iterable<ID>, kClass: KClass<T>): Iterable<T> =
         findAll({ table.id inList ids }, kClass)
-    }
 
     fun <T : Any> find(where: SqlExpressionBuilder.() -> Op<Boolean>, kClass: KClass<T>): T? {
         val converter = fetchConverter(kClass)
