@@ -17,7 +17,7 @@ interface Repository<ID : Comparable<ID>> {
     fun <P : Any, T : Any> updateById(id: ID, patch: P, kClass: KClass<T>): T
 
     fun deleteById(id: ID): Int
-    fun deleteAll(id: ID): Int
+    fun deleteAll(): Int
 
     fun countAll(): Long
 
