@@ -1,5 +1,6 @@
 package co.kr.coursedesign.database.repository
 
+import co.kr.coursedesign.database.transaction.Propagation
 import co.kr.coursedesign.database.transaction.Transaction
 import kotlin.reflect.KClass
 
@@ -20,7 +21,7 @@ interface Repository<ID : Comparable<ID>> {
 
     fun countAll(): Long
 
-    fun <T : Any> transaction(statement: Transaction.() -> T): T
+    fun <T : Any> transaction(propagation: Propagation, statement: Transaction.() -> T): T
 }
 
 inline fun <ID : Comparable<ID>, reified T : Any> Repository<ID>.save(entity: T) = save(entity, T::class)

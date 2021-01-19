@@ -4,6 +4,8 @@ import co.kr.coursedesign.database.converter.Converter
 import co.kr.coursedesign.database.converter.ConverterManager
 import co.kr.coursedesign.database.converter.DefaultConvertManager
 import co.kr.coursedesign.database.transaction.ExposedTransactionAdapter
+import co.kr.coursedesign.database.transaction.Propagation
+import co.kr.coursedesign.database.transaction.transaction
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.FieldSet
@@ -15,7 +17,6 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.util.Optional
 import kotlin.reflect.KClass
@@ -104,19 +105,27 @@ open class ExposedRepository<ID : Comparable<ID>, TABLE : IdTable<ID>>(
         table.deleteWhere(op = where)
     }
 
-    override fun <P : Any, T : Any> updateById(id: ID, patch: P, kClass: KClass<T>): T = update({ table.id eq id }, patch, kClass)
+    override fun <P : Any, T : Any> updateById(id: ID, patch: P, kClass: KClass<T>): T =
+        update({ table.id eq id }, patch, kClass)
 
     @Suppress("UNCHECKED_CAST")
-    fun <P : Any, T : Any> update(where: SqlExpressionBuilder.() -> Op<Boolean>, patch: P, kClass: KClass<T>): T = transaction {
-        val converter = fetchConverter(patch::class as KClass<P>)
-        table.update(where, body = converter.serialize(patch))
+    fun <P : Any, T : Any> update(where: SqlExpressionBuilder.() -> Op<Boolean>, patch: P, kClass: KClass<T>): T =
+        transaction {
+            val converter = fetchConverter(patch::class as KClass<P>)
+            table.update(where, body = converter.serialize(patch))
 
-        find(where, kClass) ?: throw CantFindException()
-    }
+            find(where, kClass) ?: throw CantFindException()
+        }
 
-    override fun <T : Any> transaction(statement: co.kr.coursedesign.database.transaction.Transaction.() -> T): T =
-        transaction(database) {
-            statement(ExposedTransactionAdapter(this))
+    fun <T : Any> transaction(statement: co.kr.coursedesign.database.transaction.Transaction.() -> T): T =
+        transaction(Propagation.REQUIRED, statement)
+
+    override fun <T : Any> transaction(
+        propagation: Propagation,
+        statement: co.kr.coursedesign.database.transaction.Transaction.() -> T,
+    ): T =
+        transaction(database, propagation) {
+            ExposedTransactionAdapter(this).statement()
         }
 }
 
