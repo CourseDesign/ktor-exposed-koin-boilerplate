@@ -18,7 +18,7 @@ buildscript {
 
 plugins {
     application
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.7.10"
     id("org.jlleitschuh.gradle.ktlint")
 }
 
